@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button'
 import { Download, Loader2, ArrowLeft } from 'lucide-react'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
-import html2canvas from 'html2canvas'
+import * as htmlToImage from 'html-to-image'
 
 export type TextStyle = {
   size: number
@@ -129,22 +129,20 @@ export function EditorWorkspace() {
         }
       }
 
-      // 2. We use html2canvas to render the #export-target
-      const canvas = await html2canvas(workspaceRef.current, {
-        useCORS: true, // for the map tiles
-        allowTaint: true,
-        scale: 1, // matches natural size
+      // 2. We use html-to-image to render the #export-target
+      const dataUrl = await htmlToImage.toJpeg(workspaceRef.current, {
+        quality: 0.95,
+        pixelRatio: 1, // matches natural size
       })
 
       // Restore original src
       imgRef.current.src = originalSrc
 
       // 3. Download the image
-      const imageBlobUrl = canvas.toDataURL('image/jpeg', 0.95)
       const link = document.createElement('a')
       const fileName = `timestamp-${new Date().toISOString().split('T')[0]}-${new Date().getHours()}${new Date().getMinutes()}.jpg`
       link.download = fileName
-      link.href = imageBlobUrl
+      link.href = dataUrl
       link.click()
 
       toast.success('Foto berhasil diunduh!', { id: 'download' })
