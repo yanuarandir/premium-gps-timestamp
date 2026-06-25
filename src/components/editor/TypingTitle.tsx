@@ -23,7 +23,7 @@ export function TypingTitle({ text, className = "" }: { text: string, className?
   return (
     <span className={`inline-flex items-center justify-center ${className}`}>
       {displayedText}
-      <span className={`w-[4px] h-[1.1em] bg-white ml-2 rounded-full ${isComplete ? 'animate-pulse' : ''}`}></span>
+      <span className={`w-[4px] h-[1.1em] bg-rose-400 ml-2 rounded-full ${isComplete ? 'animate-pulse' : ''}`}></span>
     </span>
   )
 }

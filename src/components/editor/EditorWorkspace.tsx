@@ -172,9 +172,9 @@ export function EditorWorkspace() {
           size="icon" 
           onClick={handleReset} 
           title="Kembali ke Beranda"
-          className="absolute top-3 left-3 sm:top-6 sm:left-8 md:top-8 md:left-16 xl:left-32 text-white bg-[#0D0D0D] border-white/10 hover:bg-[#1A1A1A] hover:border-white/50 shadow-md hover:shadow-xl rounded-full w-10 h-10 sm:w-14 sm:h-14 transition-all duration-300 z-50 flex items-center justify-center"
+          className="absolute top-3 left-3 sm:top-6 sm:left-8 md:top-8 md:left-16 xl:left-32 text-white bg-[#0D0D0D] border-white/10 hover:bg-[#1A1A1A] hover:border-rose-400/50 hover:text-rose-400 shadow-md rounded-full w-9 h-9 sm:w-11 sm:h-11 transition-all duration-300 z-50 flex items-center justify-center"
         >
-          <ArrowLeft className="w-5 h-5 sm:w-8 sm:h-8" />
+          <ArrowLeft className="w-4 h-4 sm:w-6 sm:h-6" />
         </Button>
       )}
 
@@ -202,9 +202,9 @@ export function EditorWorkspace() {
                 <Button
                   onClick={handleDownload}
                   disabled={isDownloading}
-                  className="w-full bg-white hover:bg-zinc-200 text-black h-12 sm:h-16 text-base sm:text-xl rounded-xl font-bold shadow-xl transition-all flex items-center justify-center"
+                  className="w-full bg-gradient-to-r from-rose-500 to-amber-500 hover:opacity-95 text-white h-11 sm:h-12 text-sm sm:text-base rounded-xl font-bold shadow-md shadow-rose-500/15 transition-all flex items-center justify-center"
                 >
-                  {isDownloading ? <Loader2 className="mr-2 h-5 w-5 sm:h-6 sm:w-6 animate-spin" /> : <Download className="mr-2 h-5 w-5 sm:h-6 sm:w-6" />}
+                  {isDownloading ? <Loader2 className="mr-2 h-4 w-4 sm:h-5 sm:w-5 animate-spin" /> : <Download className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />}
                   Download Foto
                 </Button>
               </div>

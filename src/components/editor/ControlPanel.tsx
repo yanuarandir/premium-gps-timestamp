@@ -170,7 +170,7 @@ export function ControlPanel({
             <Label className="text-muted-foreground text-xs uppercase tracking-wider block font-semibold">Tanggal</Label>
             <Input 
               type="date"
-              className="w-full bg-[#1A1A1A] border-transparent text-white focus:border-white h-12 sm:h-14 text-base cursor-pointer rounded-xl"
+              className="w-full bg-[#1A1A1A] border-transparent text-white focus:border-rose-400 h-10 sm:h-11 text-sm cursor-pointer rounded-xl"
               onClick={(e) => {
                 if ('showPicker' in HTMLInputElement.prototype) {
                   try { e.currentTarget.showPicker() } catch (err) {}
@@ -199,7 +199,7 @@ export function ControlPanel({
             <Label className="text-muted-foreground text-xs uppercase tracking-wider block font-semibold">Waktu</Label>
             <Input 
               type="time"
-              className="w-full bg-[#1A1A1A] border-transparent text-white focus:border-white h-12 sm:h-14 text-base cursor-pointer rounded-xl"
+              className="w-full bg-[#1A1A1A] border-transparent text-white focus:border-rose-400 h-10 sm:h-11 text-sm cursor-pointer rounded-xl"
               onClick={(e) => {
                 if ('showPicker' in HTMLInputElement.prototype) {
                   try { e.currentTarget.showPicker() } catch (err) {}
@@ -230,8 +230,8 @@ export function ControlPanel({
       <div className="bg-[#121212] border border-[#1E1E1E] rounded-2xl p-5 sm:p-8 space-y-5 shadow-lg relative">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <h3 className="text-xl font-medium text-white">Lokasi Saat Ini</h3>
-          <Button onClick={handleAutoGPS} size="sm" className="bg-white/10 hover:bg-white text-white hover:text-black border border-white/20 rounded-full px-5 py-2 h-auto text-sm font-semibold transition-all">
-            <Crosshair className="w-4 h-4 mr-2" />
+          <Button onClick={handleAutoGPS} size="sm" className="bg-rose-500/15 hover:bg-rose-500 text-rose-300 hover:text-white border border-rose-400/30 rounded-full px-4 py-1.5 h-8 text-xs font-semibold transition-all">
+            <Crosshair className="w-3.5 h-3.5 mr-1.5" />
             Ambil Otomatis
           </Button>
         </div>
@@ -241,7 +241,7 @@ export function ControlPanel({
           <Label className="text-muted-foreground text-sm uppercase tracking-wider mb-3 block font-semibold">Paste Link Google Maps (Opsional)</Label>
           <div className="flex flex-row items-center gap-2">
             <Input 
-              className="bg-[#1A1A1A] border-transparent text-white focus:border-white h-12 text-base flex-1 rounded-xl"
+              className="bg-[#1A1A1A] border-transparent text-white focus:border-rose-400 h-10 sm:h-11 text-sm flex-1 rounded-xl"
               placeholder="Contoh: https://maps.app.goo.gl/..."
               value={mapsLink}
               onChange={e => setMapsLink(e.target.value)}
@@ -250,11 +250,11 @@ export function ControlPanel({
                type="button"
                title="Ekstrak Link"
                aria-label="Ekstrak Link"
-               className="h-12 w-12 shrink-0 p-0 bg-transparent border border-white/20 hover:bg-white/10 text-white rounded-xl transition-all flex items-center justify-center font-semibold"
+               className="h-10 sm:h-11 w-10 sm:w-11 shrink-0 p-0 bg-rose-500/15 border border-rose-400/30 hover:bg-rose-500 hover:text-white text-rose-300 rounded-xl transition-all flex items-center justify-center font-semibold"
                onClick={handleExtractLink}
                disabled={isExtracting}
             >
-               {isExtracting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Search className="w-5 h-5" />}
+               {isExtracting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
             </Button>
           </div>
         </div>
@@ -262,27 +262,27 @@ export function ControlPanel({
         <div className="space-y-4">
           <div>
             <Label className="text-muted-foreground text-xs uppercase tracking-wider mb-2 block font-semibold">Koordinat (Lat, Long)</Label>
-            <Input className="bg-[#1A1A1A] border-transparent text-white focus:border-white h-12 sm:h-14 text-base rounded-xl" placeholder="-6.200000, 106.816666" 
+            <Input className="bg-[#1A1A1A] border-transparent text-white focus:border-rose-400 h-10 sm:h-11 text-sm rounded-xl" placeholder="-6.200000, 106.816666" 
               value={timestampData.gps} 
               onChange={e => setTimestampData(prev => ({ ...prev, gps: e.target.value }))} 
             />
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <div>
-              <Label className="text-muted-foreground text-xs sm:text-sm uppercase tracking-wider mb-2 sm:mb-3 block font-semibold">Baris 1</Label>
-              <Input className="bg-[#1A1A1A] border-transparent text-white focus:border-white h-12 sm:h-14 text-base rounded-xl" placeholder="Kelurahan" value={timestampData.loc1} onChange={e => setTimestampData(prev => ({ ...prev, loc1: e.target.value }))} />
+              <Label className="text-muted-foreground text-xs uppercase tracking-wider mb-2 block font-semibold">Baris 1</Label>
+              <Input className="bg-[#1A1A1A] border-transparent text-white focus:border-rose-400 h-10 sm:h-11 text-sm rounded-xl" placeholder="Kelurahan" value={timestampData.loc1} onChange={e => setTimestampData(prev => ({ ...prev, loc1: e.target.value }))} />
             </div>
             <div>
-              <Label className="text-muted-foreground text-xs sm:text-sm uppercase tracking-wider mb-2 sm:mb-3 block font-semibold">Baris 2</Label>
-              <Input className="bg-[#1A1A1A] border-transparent text-white focus:border-white h-12 sm:h-14 text-base rounded-xl" placeholder="Kecamatan" value={timestampData.loc2} onChange={e => setTimestampData(prev => ({ ...prev, loc2: e.target.value }))} />
+              <Label className="text-muted-foreground text-xs uppercase tracking-wider mb-2 block font-semibold">Baris 2</Label>
+              <Input className="bg-[#1A1A1A] border-transparent text-white focus:border-rose-400 h-10 sm:h-11 text-sm rounded-xl" placeholder="Kecamatan" value={timestampData.loc2} onChange={e => setTimestampData(prev => ({ ...prev, loc2: e.target.value }))} />
             </div>
             <div>
-              <Label className="text-muted-foreground text-xs sm:text-sm uppercase tracking-wider mb-2 sm:mb-3 block font-semibold">Baris 3</Label>
-              <Input className="bg-[#1A1A1A] border-transparent text-white focus:border-white h-12 sm:h-14 text-base rounded-xl" placeholder="Kota" value={timestampData.loc3} onChange={e => setTimestampData(prev => ({ ...prev, loc3: e.target.value }))} />
+              <Label className="text-muted-foreground text-xs uppercase tracking-wider mb-2 block font-semibold">Baris 3</Label>
+              <Input className="bg-[#1A1A1A] border-transparent text-white focus:border-rose-400 h-10 sm:h-11 text-sm rounded-xl" placeholder="Kota" value={timestampData.loc3} onChange={e => setTimestampData(prev => ({ ...prev, loc3: e.target.value }))} />
             </div>
             <div>
-              <Label className="text-muted-foreground text-xs sm:text-sm uppercase tracking-wider mb-2 sm:mb-3 block font-semibold">Baris 4</Label>
-              <Input className="bg-[#1A1A1A] border-transparent text-white focus:border-white h-12 sm:h-14 text-base rounded-xl" placeholder="Provinsi" value={timestampData.loc4} onChange={e => setTimestampData(prev => ({ ...prev, loc4: e.target.value }))} />
+              <Label className="text-muted-foreground text-xs uppercase tracking-wider mb-2 block font-semibold">Baris 4</Label>
+              <Input className="bg-[#1A1A1A] border-transparent text-white focus:border-rose-400 h-10 sm:h-11 text-sm rounded-xl" placeholder="Provinsi" value={timestampData.loc4} onChange={e => setTimestampData(prev => ({ ...prev, loc4: e.target.value }))} />
             </div>
           </div>
         </div>
@@ -311,14 +311,14 @@ export function ControlPanel({
               <button 
                 key={c}
                 type="button"
-                className={`w-12 h-12 rounded-full border-[3px] transition-all ${textStyle.color === c ? 'border-white scale-110 ring-2 ring-white/30' : 'border-[#1E1E1E]'}`}
+                className={`w-10 h-10 rounded-full border-[3px] transition-all ${textStyle.color === c ? 'border-rose-400 scale-110 ring-2 ring-rose-400/30' : 'border-[#1E1E1E]'}`}
                 style={{ backgroundColor: c }}
                 onClick={() => setTextStyle(prev => ({ ...prev, color: c }))}
               />
             ))}
             <Input 
               type="color" 
-              className="w-12 h-12 p-0 border-0 rounded-full overflow-hidden cursor-pointer" 
+              className="w-10 h-10 p-0 border-0 rounded-full overflow-hidden cursor-pointer" 
               value={textStyle.color} 
               onChange={e => setTextStyle(prev => ({ ...prev, color: e.target.value }))} 
             />
@@ -327,7 +327,7 @@ export function ControlPanel({
 
         <div className="space-y-4">
           <Label className="text-muted-foreground text-base block mb-4">Bentuk Latar Belakang</Label>
-          <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-3">
             {[
               { id: 'plain', label: 'Polos' },
               { id: 'shadow', label: 'Bayangan' },
@@ -339,7 +339,7 @@ export function ControlPanel({
                 key={variant.id} 
                 type="button"
                 onClick={() => setTextStyle(prev => ({ ...prev, variant: variant.id as TextStyle['variant'] }))}
-                className={`py-3.5 sm:py-4 px-4 sm:px-5 rounded-xl text-sm sm:text-base font-medium transition-all border-2 ${textStyle.variant === variant.id ? 'border-white bg-white/10 text-white shadow-md font-semibold' : 'border-[#1E1E1E] bg-[#1A1A1A] text-muted-foreground hover:border-white/20 hover:bg-[#222]'}`}
+                className={`py-2.5 sm:py-3 px-3 sm:px-4 rounded-xl text-xs sm:text-sm font-medium transition-all border-2 ${textStyle.variant === variant.id ? 'border-rose-400 bg-rose-500/15 text-rose-300 shadow-md font-semibold' : 'border-[#1E1E1E] bg-[#1A1A1A] text-muted-foreground hover:border-rose-400/30 hover:bg-[#222]'}`}
               >
                 {variant.label}
               </button>
@@ -368,7 +368,7 @@ export function ControlPanel({
             <span className="text-base text-muted-foreground">Tampilkan</span>
             <input 
               type="checkbox" 
-              className="w-6 h-6 accent-white rounded border-[#1E1E1E] cursor-pointer"
+              className="w-5 h-5 accent-rose-500 rounded border-[#1E1E1E] cursor-pointer"
               checked={mapData.visible}
               onChange={e => setMapData(prev => ({ ...prev, visible: e.target.checked }))}
             />
