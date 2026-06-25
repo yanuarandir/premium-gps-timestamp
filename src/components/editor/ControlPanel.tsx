@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { Slider } from '@/components/ui/slider'
 import { Button } from '@/components/ui/button'
-import { MapPin, Crosshair, Image as ImageIcon, Loader2 } from 'lucide-react'
+import { MapPin, Search, Crosshair, Image as ImageIcon, Loader2 } from 'lucide-react'
 import type { TextStyle, TimestampData, MapData, FilterData } from './EditorWorkspace'
 import { toast } from 'sonner'
 
@@ -223,7 +223,7 @@ export function ControlPanel({
         {/* Input Google Maps Link */}
         <div className="mb-6 border-b border-[#1E1E1E] pb-6 mt-4">
           <Label className="text-muted-foreground text-sm uppercase tracking-wider mb-3 block font-semibold">Paste Link Google Maps (Opsional)</Label>
-          <div className="flex flex-col sm:flex-row gap-3">
+          <div className="flex flex-row items-center gap-2">
             <Input 
               className="bg-[#1A1A1A] border-transparent text-white focus:border-[#FF5656] h-12 text-base flex-1"
               placeholder="Contoh: https://maps.app.goo.gl/..."
@@ -231,12 +231,14 @@ export function ControlPanel({
               onChange={e => setMapsLink(e.target.value)}
             />
             <Button 
-               className="h-12 bg-transparent border border-white/20 hover:bg-white/10 text-white px-5 font-semibold transition-all w-full sm:w-auto"
+               type="button"
+               title="Ekstrak Link"
+               aria-label="Ekstrak Link"
+               className="h-12 w-12 shrink-0 p-0 bg-transparent border border-white/20 hover:bg-white/10 text-white transition-all flex items-center justify-center"
                onClick={handleExtractLink}
                disabled={isExtracting}
             >
-               {isExtracting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <MapPin className="w-4 h-4 mr-2" />}
-               {isExtracting ? 'Mengekstrak...' : 'Ekstrak'}
+               {isExtracting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Search className="w-5 h-5" />}
             </Button>
           </div>
         </div>

@@ -1,23 +1,36 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Lock } from 'lucide-react'
 
 export function PasswordGuard({ children }: { children: React.ReactNode }) {
   const [isUnlocked, setIsUnlocked] = useState(false)
+  const [isChecking, setIsChecking] = useState(true)
   const [password, setPassword] = useState('')
   const [error, setError] = useState(false)
+
+  useEffect(() => {
+    if (sessionStorage.getItem('access_unlocked') === 'true') {
+      setIsUnlocked(true)
+    }
+    setIsChecking(false)
+  }, [])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (password === 'nadilacantik') {
       setIsUnlocked(true)
+      sessionStorage.setItem('access_unlocked', 'true')
       setError(false)
     } else {
       setError(true)
     }
+  }
+
+  if (isChecking) {
+    return <div className="fixed inset-0 z-[100] bg-[#000000]" />
   }
 
   if (isUnlocked) {
