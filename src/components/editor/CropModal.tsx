@@ -99,24 +99,24 @@ export function CropModal({ imageSrc, onComplete, onCancel }: CropModalProps) {
           <div className="flex gap-2 flex-wrap w-full sm:w-auto">
             <Button 
               variant="outline" 
-              className={aspect === undefined ? "bg-[#FF5656] text-white border-transparent hover:bg-[#FF5656]/90 hover:text-white" : "bg-[#1E1E1E] border-transparent text-muted-foreground hover:text-white hover:bg-[#2A2A2A]"} 
+              className={aspect === undefined ? "bg-white text-black font-semibold border-transparent hover:bg-zinc-200" : "bg-[#1E1E1E] border-transparent text-muted-foreground hover:text-white hover:bg-[#2A2A2A]"} 
               size="sm" onClick={() => setAspect(undefined)}>Free</Button>
             <Button 
               variant="outline" 
-              className={aspect === 4/3 ? "bg-[#FF5656] text-white border-transparent hover:bg-[#FF5656]/90 hover:text-white" : "bg-[#1E1E1E] border-transparent text-muted-foreground hover:text-white hover:bg-[#2A2A2A]"} 
+              className={aspect === 4/3 ? "bg-white text-black font-semibold border-transparent hover:bg-zinc-200" : "bg-[#1E1E1E] border-transparent text-muted-foreground hover:text-white hover:bg-[#2A2A2A]"} 
               size="sm" onClick={() => setAspect(4/3)}>4:3</Button>
             <Button 
               variant="outline" 
-              className={aspect === 16/9 ? "bg-[#FF5656] text-white border-transparent hover:bg-[#FF5656]/90 hover:text-white" : "bg-[#1E1E1E] border-transparent text-muted-foreground hover:text-white hover:bg-[#2A2A2A]"} 
+              className={aspect === 16/9 ? "bg-white text-black font-semibold border-transparent hover:bg-zinc-200" : "bg-[#1E1E1E] border-transparent text-muted-foreground hover:text-white hover:bg-[#2A2A2A]"} 
               size="sm" onClick={() => setAspect(16/9)}>16:9</Button>
             <Button 
               variant="outline" 
-              className={aspect === 1 ? "bg-[#FF5656] text-white border-transparent hover:bg-[#FF5656]/90 hover:text-white" : "bg-[#1E1E1E] border-transparent text-muted-foreground hover:text-white hover:bg-[#2A2A2A]"} 
+              className={aspect === 1 ? "bg-white text-black font-semibold border-transparent hover:bg-zinc-200" : "bg-[#1E1E1E] border-transparent text-muted-foreground hover:text-white hover:bg-[#2A2A2A]"} 
               size="sm" onClick={() => setAspect(1)}>1:1</Button>
           </div>
           <div className="flex gap-3 w-full sm:w-auto justify-end">
             <Button variant="ghost" onClick={onCancel} className="text-muted-foreground hover:text-white hover:bg-[#1E1E1E]">Batal</Button>
-            <Button onClick={handleApplyCrop} className="bg-gradient-to-r from-pink-500 to-orange-500 hover:opacity-90 text-white border-0 shadow-lg px-6 font-semibold">Terapkan Crop</Button>
+            <Button onClick={handleApplyCrop} className="bg-white text-black hover:bg-zinc-200 border-0 shadow-xl px-6 font-bold transition-all">Terapkan Crop</Button>
           </div>
         </div>
       </DialogContent>

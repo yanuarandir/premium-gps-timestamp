@@ -164,7 +164,7 @@ export function EditorWorkspace() {
   }
 
   return (
-    <div className="w-full bg-[#000000] min-h-screen text-white py-8 md:py-12 px-4 md:px-16 flex flex-col items-center justify-center relative">
+    <div className="w-full bg-[#000000] min-h-screen text-white py-6 sm:py-8 md:py-12 px-2 sm:px-6 md:px-12 lg:px-16 flex flex-col items-center justify-center relative">
 
       {croppedImageUrl && !isCropping && (
         <Button 
@@ -172,14 +172,14 @@ export function EditorWorkspace() {
           size="icon" 
           onClick={handleReset} 
           title="Kembali ke Beranda"
-          className="absolute top-6 left-8 md:top-8 md:left-16 xl:left-32 text-white bg-[#0D0D0D] border-white/10 hover:bg-[#1A1A1A] hover:border-[#FF5656]/50 shadow-[0_0_15px_rgba(255,255,255,0.05)] hover:shadow-[0_0_25px_rgba(255,86,86,0.3)] rounded-full w-14 h-14 transition-all duration-300 z-50"
+          className="absolute top-3 left-3 sm:top-6 sm:left-8 md:top-8 md:left-16 xl:left-32 text-white bg-[#0D0D0D] border-white/10 hover:bg-[#1A1A1A] hover:border-white/50 shadow-md hover:shadow-xl rounded-full w-10 h-10 sm:w-14 sm:h-14 transition-all duration-300 z-50 flex items-center justify-center"
         >
-          <ArrowLeft className="w-8 h-8" />
+          <ArrowLeft className="w-5 h-5 sm:w-8 sm:h-8" />
         </Button>
       )}
 
-      <div className="text-center mb-16 w-full flex justify-center mt-8 md:mt-0">
-        <h2 className="text-3xl md:text-4xl lg:text-5xl font-mono text-white tracking-wide">
+      <div className="text-center mb-8 sm:mb-16 w-full flex justify-center mt-6 sm:mt-8 md:mt-0">
+        <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-mono text-white tracking-wide font-bold">
           <TypingTitle text="Generate Timestamp GRATIS!" />
         </h2>
       </div>
@@ -190,7 +190,7 @@ export function EditorWorkspace() {
         <div className="flex flex-col border-t lg:border-t-0 lg:border-r border-[#1E1E1E] lg:col-span-5 xl:col-span-4 h-full lg:max-h-[85vh] bg-[#080808]">
           {croppedImageUrl && !isCropping ? (
             <>
-              <div className="flex-1 overflow-y-auto custom-scrollbar p-6 lg:p-8 xl:p-12">
+              <div className="flex-1 overflow-y-auto custom-scrollbar p-4 sm:p-6 lg:p-8 xl:p-12">
                 <ControlPanel
                   textStyle={textStyle} setTextStyle={setTextStyle}
                   timestampData={timestampData} setTimestampData={setTimestampData}
@@ -198,26 +198,26 @@ export function EditorWorkspace() {
                   filterData={filterData} setFilterData={setFilterData}
                 />
               </div>
-              <div className="p-6 lg:px-8 xl:px-12 pb-6 lg:pb-8 xl:pb-12 pt-6 border-t border-[#1E1E1E] bg-[#080808] z-10 shrink-0">
+              <div className="p-4 sm:p-6 lg:px-8 xl:px-12 pb-4 sm:pb-6 lg:pb-8 xl:pb-12 pt-4 sm:pt-6 border-t border-[#1E1E1E] bg-[#080808] z-10 shrink-0">
                 <Button
                   onClick={handleDownload}
                   disabled={isDownloading}
-                  className="w-full bg-gradient-to-r from-pink-500 to-orange-500 hover:opacity-90 text-white h-16 text-xl rounded-xl font-bold shadow-lg shadow-pink-500/20"
+                  className="w-full bg-white hover:bg-zinc-200 text-black h-12 sm:h-16 text-base sm:text-xl rounded-xl font-bold shadow-xl transition-all flex items-center justify-center"
                 >
-                  {isDownloading ? <Loader2 className="mr-2 h-6 w-6 animate-spin" /> : <Download className="mr-2 h-6 w-6" />}
+                  {isDownloading ? <Loader2 className="mr-2 h-5 w-5 sm:h-6 sm:w-6 animate-spin" /> : <Download className="mr-2 h-5 w-5 sm:h-6 sm:w-6" />}
                   Download Foto
                 </Button>
               </div>
             </>
           ) : (
-            <div className="h-full flex items-center justify-center min-h-[400px] p-6 lg:p-8 xl:p-12">
-              <p className="text-muted-foreground text-center text-lg">Tolong unggah foto di area sebelah kanan terlebih dahulu.</p>
+            <div className="h-full flex items-center justify-center min-h-[300px] sm:min-h-[400px] p-4 sm:p-6 lg:p-8 xl:p-12">
+              <p className="text-muted-foreground text-center text-base sm:text-lg">Tolong unggah foto di area sebelah kanan terlebih dahulu.</p>
             </div>
           )}
         </div>
 
         {/* Right Column: Main Workspace Area */}
-        <div className="relative p-6 lg:p-12 min-h-[500px] lg:h-full lg:col-span-7 xl:col-span-8 flex flex-col items-center justify-start lg:justify-center bg-black/40">
+        <div className="relative p-4 sm:p-6 lg:p-12 min-h-[320px] sm:min-h-[500px] lg:h-full lg:col-span-7 xl:col-span-8 flex flex-col items-center justify-start lg:justify-center bg-black/40">
           {!imageSrc && !croppedImageUrl && (
             <div className="w-full h-full flex-1 flex flex-col">
               <PhotoUploader onImageSelect={handleImageSelect} />
@@ -236,7 +236,7 @@ export function EditorWorkspace() {
                 ref={imgRef}
                 src={croppedImageUrl}
                 alt="Cropped workspace"
-                className="max-w-full max-h-[60vh] lg:max-h-[75vh] object-contain pointer-events-none"
+                className="max-w-full max-h-[46vh] sm:max-h-[60vh] lg:max-h-[75vh] object-contain pointer-events-none"
                 style={{ filter: `brightness(${filterData.brightness}%) contrast(${filterData.contrast}%)` }}
                 onLoad={(e) => {
                   setImgDimensions({ w: e.currentTarget.clientWidth, h: e.currentTarget.clientHeight })

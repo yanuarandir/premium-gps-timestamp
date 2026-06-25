@@ -32,54 +32,94 @@ export function ControlPanel({
 
   const handleSetNow = () => {
     const now = new Date()
-    // format YYYY MM DD and HH:MM
     const dateStr = now.toISOString().split('T')[0].replace(/-/g, ' ')
     const timeStr = now.toTimeString().split(' ')[0].substring(0, 5)
     setTimestampData(prev => ({ ...prev, date: `${dateStr} ${timeStr}` }))
   }
 
+  const fetchReverseGeocode = async (latitude: number, longitude: number) => {
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&accept-language=id`)
+      const data = await res.json()
+      
+      if (data && data.address) {
+        const addr = data.address
+        setTimestampData(prev => ({
+          ...prev,
+          loc1: addr.village || addr.suburb || addr.neighbourhood || '',
+          loc2: addr.county || addr.city_district || '',
+          loc3: addr.city || addr.town || addr.municipality || '',
+          loc4: addr.state || addr.region || ''
+        }))
+      }
+    } catch (error) {
+      console.error('Reverse geocoding error:', error)
+    }
+  }
+
+  const applyLocation = (latitude: number, longitude: number) => {
+    const latStr = `${Math.abs(latitude).toFixed(4)}${latitude >= 0 ? 'N' : 'S'}`
+    const lngStr = `${Math.abs(longitude).toFixed(4)}${longitude >= 0 ? 'E' : 'W'}`
+    
+    setTimestampData(prev => ({ ...prev, gps: `${latStr} ${lngStr}` }))
+    setMapData(prev => ({ ...prev, lat: latitude, lng: longitude }))
+    fetchReverseGeocode(latitude, longitude)
+  }
+
   const handleAutoGPS = () => {
+    toast.loading('Mencoba GPS Satelit...', { id: 'gps' })
+
+    const fallbackToIP = async () => {
+      toast.loading('Mengambil lokasi via Jaringan IP...', { id: 'gps' })
+      try {
+        const res = await fetch('https://ipwho.is/')
+        const data = await res.json()
+        if (data && data.success && data.latitude && data.longitude) {
+          applyLocation(data.latitude, data.longitude)
+          if (data.city || data.region) {
+            setTimestampData(prev => ({
+              ...prev,
+              loc2: data.city || prev.loc2,
+              loc4: data.region || prev.loc4
+            }))
+          }
+          toast.success('Lokasi berhasil didapatkan (via Jaringan IP)!', { id: 'gps' })
+        } else {
+          throw new Error('Layanan IP tidak mendeteksi koordinat')
+        }
+      } catch (err: any) {
+        toast.error('Semua metode gagal mengambil lokasi di device ini.', { id: 'gps' })
+      }
+    }
+
+    const fallbackToNetwork = () => {
+      toast.loading('Mencoba GPS Jaringan Seluler...', { id: 'gps' })
+      if (!navigator.geolocation) {
+        fallbackToIP()
+        return
+      }
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          applyLocation(pos.coords.latitude, pos.coords.longitude)
+          toast.success('Lokasi berhasil didapatkan!', { id: 'gps' })
+        },
+        () => fallbackToIP(),
+        { enableHighAccuracy: false, timeout: 8000, maximumAge: 30000 }
+      )
+    }
+
     if (!navigator.geolocation) {
-      toast.error('Geolocation is not supported by your browser')
+      fallbackToIP()
       return
     }
 
-    toast.loading('Mengambil lokasi...', { id: 'gps' })
     navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        const { latitude, longitude } = position.coords
-        
-        // Format GPS
-        const latStr = `${Math.abs(latitude).toFixed(4)}${latitude >= 0 ? 'N' : 'S'}`
-        const lngStr = `${Math.abs(longitude).toFixed(4)}${longitude >= 0 ? 'E' : 'W'}`
-        
-        setTimestampData(prev => ({ ...prev, gps: `${latStr} ${lngStr}` }))
-        setMapData(prev => ({ ...prev, lat: latitude, lng: longitude }))
-
-        // Reverse Geocoding via Nominatim
-        try {
-          const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&accept-language=id`)
-          const data = await res.json()
-          
-          if (data && data.address) {
-            const addr = data.address
-            setTimestampData(prev => ({
-              ...prev,
-              loc1: addr.village || addr.suburb || addr.neighbourhood || '',
-              loc2: addr.county || addr.city_district || '',
-              loc3: addr.city || addr.town || addr.municipality || '',
-              loc4: addr.state || addr.region || ''
-            }))
-          }
-        } catch (error) {
-          console.error('Reverse geocoding error:', error)
-        }
-        toast.success('Lokasi berhasil didapatkan!', { id: 'gps' })
+      (pos) => {
+        applyLocation(pos.coords.latitude, pos.coords.longitude)
+        toast.success('Lokasi akurat berhasil didapatkan!', { id: 'gps' })
       },
-      (error) => {
-        toast.error('Gagal mengambil lokasi: ' + error.message, { id: 'gps' })
-      },
-      { enableHighAccuracy: true }
+      () => fallbackToNetwork(),
+      { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
     )
   }
 
@@ -107,34 +147,10 @@ export function ControlPanel({
 
       const { lat, lng } = data
 
-      // Format GPS
-      const latStr = `${Math.abs(lat).toFixed(4)}${lat >= 0 ? 'N' : 'S'}`
-      const lngStr = `${Math.abs(lng).toFixed(4)}${lng >= 0 ? 'E' : 'W'}`
-      
-      setTimestampData(prev => ({ ...prev, gps: `${latStr} ${lngStr}` }))
-      setMapData(prev => ({ ...prev, lat, lng }))
-
-      // Reverse Geocoding
-      try {
-        const geoRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&accept-language=id`)
-        const geoData = await geoRes.json()
-        
-        if (geoData && geoData.address) {
-          const addr = geoData.address
-          setTimestampData(prev => ({
-            ...prev,
-            loc1: addr.village || addr.suburb || addr.neighbourhood || '',
-            loc2: addr.county || addr.city_district || '',
-            loc3: addr.city || addr.town || addr.municipality || '',
-            loc4: addr.state || addr.region || ''
-          }))
-        }
-      } catch (error) {
-        console.error('Reverse geocoding error:', error)
-      }
+      applyLocation(lat, lng)
 
       toast.success('Koordinat berhasil diekstrak!', { id: 'extract-maps' })
-      setMapsLink('') // Kosongkan input setelah berhasil
+      setMapsLink('') 
     } catch (error) {
       const err = error as Error
       toast.error(err.message || 'Terjadi kesalahan', { id: 'extract-maps' })
@@ -147,14 +163,14 @@ export function ControlPanel({
     <div className="w-full flex flex-col space-y-6">
       
       {/* SECTION 1: WAKTU */}
-      <div className="bg-[#121212] border border-[#1E1E1E] rounded-2xl p-6 sm:p-8 shadow-lg">
+      <div className="bg-[#121212] border border-[#1E1E1E] rounded-2xl p-5 sm:p-8 shadow-lg">
         <h3 className="text-xl font-medium text-white mb-6">Tanggal & Waktu</h3>
         <div className="flex flex-col gap-5 mb-4">
           <div className="space-y-2">
-            <Label className="text-muted-foreground text-xs uppercase tracking-wider block">Tanggal</Label>
+            <Label className="text-muted-foreground text-xs uppercase tracking-wider block font-semibold">Tanggal</Label>
             <Input 
               type="date"
-              className="w-full bg-[#1A1A1A] border-transparent text-white focus:border-[#FF5656] h-14 text-base cursor-pointer"
+              className="w-full bg-[#1A1A1A] border-transparent text-white focus:border-white h-12 sm:h-14 text-base cursor-pointer rounded-xl"
               onClick={(e) => {
                 if ('showPicker' in HTMLInputElement.prototype) {
                   try { e.currentTarget.showPicker() } catch (err) {}
@@ -180,10 +196,10 @@ export function ControlPanel({
           </div>
           
           <div className="space-y-2">
-            <Label className="text-muted-foreground text-xs uppercase tracking-wider block">Waktu</Label>
+            <Label className="text-muted-foreground text-xs uppercase tracking-wider block font-semibold">Waktu</Label>
             <Input 
               type="time"
-              className="w-full bg-[#1A1A1A] border-transparent text-white focus:border-[#FF5656] h-14 text-base cursor-pointer"
+              className="w-full bg-[#1A1A1A] border-transparent text-white focus:border-white h-12 sm:h-14 text-base cursor-pointer rounded-xl"
               onClick={(e) => {
                 if ('showPicker' in HTMLInputElement.prototype) {
                   try { e.currentTarget.showPicker() } catch (err) {}
@@ -211,10 +227,10 @@ export function ControlPanel({
       </div>
 
       {/* SECTION 2: LOKASI */}
-      <div className="bg-[#121212] border border-[#1E1E1E] rounded-2xl p-6 sm:p-8 space-y-5 shadow-lg relative">
+      <div className="bg-[#121212] border border-[#1E1E1E] rounded-2xl p-5 sm:p-8 space-y-5 shadow-lg relative">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <h3 className="text-xl font-medium text-white">Lokasi Saat Ini</h3>
-          <Button onClick={handleAutoGPS} size="sm" className="bg-transparent border border-white/20 hover:bg-white/10 text-white rounded-full px-5 py-2 h-auto text-sm font-semibold transition-all">
+          <Button onClick={handleAutoGPS} size="sm" className="bg-white/10 hover:bg-white text-white hover:text-black border border-white/20 rounded-full px-5 py-2 h-auto text-sm font-semibold transition-all">
             <Crosshair className="w-4 h-4 mr-2" />
             Ambil Otomatis
           </Button>
@@ -225,7 +241,7 @@ export function ControlPanel({
           <Label className="text-muted-foreground text-sm uppercase tracking-wider mb-3 block font-semibold">Paste Link Google Maps (Opsional)</Label>
           <div className="flex flex-row items-center gap-2">
             <Input 
-              className="bg-[#1A1A1A] border-transparent text-white focus:border-[#FF5656] h-12 text-base flex-1"
+              className="bg-[#1A1A1A] border-transparent text-white focus:border-white h-12 text-base flex-1 rounded-xl"
               placeholder="Contoh: https://maps.app.goo.gl/..."
               value={mapsLink}
               onChange={e => setMapsLink(e.target.value)}
@@ -234,7 +250,7 @@ export function ControlPanel({
                type="button"
                title="Ekstrak Link"
                aria-label="Ekstrak Link"
-               className="h-12 w-12 shrink-0 p-0 bg-transparent border border-white/20 hover:bg-white/10 text-white transition-all flex items-center justify-center"
+               className="h-12 w-12 shrink-0 p-0 bg-transparent border border-white/20 hover:bg-white/10 text-white rounded-xl transition-all flex items-center justify-center font-semibold"
                onClick={handleExtractLink}
                disabled={isExtracting}
             >
@@ -245,41 +261,41 @@ export function ControlPanel({
 
         <div className="space-y-4">
           <div>
-            <Label className="text-muted-foreground text-xs uppercase tracking-wider mb-2 block">Koordinat (Lat, Long)</Label>
-            <Input className="bg-[#1A1A1A] border-transparent text-white focus:border-[#FF5656] h-14 text-base" placeholder="-6.200000, 106.816666" 
+            <Label className="text-muted-foreground text-xs uppercase tracking-wider mb-2 block font-semibold">Koordinat (Lat, Long)</Label>
+            <Input className="bg-[#1A1A1A] border-transparent text-white focus:border-white h-12 sm:h-14 text-base rounded-xl" placeholder="-6.200000, 106.816666" 
               value={timestampData.gps} 
               onChange={e => setTimestampData(prev => ({ ...prev, gps: e.target.value }))} 
             />
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
             <div>
-              <Label className="text-muted-foreground text-sm uppercase tracking-wider mb-3 block font-semibold">Baris 1</Label>
-              <Input className="bg-[#1A1A1A] border-transparent text-white focus:border-[#FF5656] h-14 text-base" placeholder="Kelurahan" value={timestampData.loc1} onChange={e => setTimestampData(prev => ({ ...prev, loc1: e.target.value }))} />
+              <Label className="text-muted-foreground text-xs sm:text-sm uppercase tracking-wider mb-2 sm:mb-3 block font-semibold">Baris 1</Label>
+              <Input className="bg-[#1A1A1A] border-transparent text-white focus:border-white h-12 sm:h-14 text-base rounded-xl" placeholder="Kelurahan" value={timestampData.loc1} onChange={e => setTimestampData(prev => ({ ...prev, loc1: e.target.value }))} />
             </div>
             <div>
-              <Label className="text-muted-foreground text-sm uppercase tracking-wider mb-3 block font-semibold">Baris 2</Label>
-              <Input className="bg-[#1A1A1A] border-transparent text-white focus:border-[#FF5656] h-14 text-base" placeholder="Kecamatan" value={timestampData.loc2} onChange={e => setTimestampData(prev => ({ ...prev, loc2: e.target.value }))} />
+              <Label className="text-muted-foreground text-xs sm:text-sm uppercase tracking-wider mb-2 sm:mb-3 block font-semibold">Baris 2</Label>
+              <Input className="bg-[#1A1A1A] border-transparent text-white focus:border-white h-12 sm:h-14 text-base rounded-xl" placeholder="Kecamatan" value={timestampData.loc2} onChange={e => setTimestampData(prev => ({ ...prev, loc2: e.target.value }))} />
             </div>
             <div>
-              <Label className="text-muted-foreground text-sm uppercase tracking-wider mb-3 block font-semibold">Baris 3</Label>
-              <Input className="bg-[#1A1A1A] border-transparent text-white focus:border-[#FF5656] h-14 text-base" placeholder="Kota" value={timestampData.loc3} onChange={e => setTimestampData(prev => ({ ...prev, loc3: e.target.value }))} />
+              <Label className="text-muted-foreground text-xs sm:text-sm uppercase tracking-wider mb-2 sm:mb-3 block font-semibold">Baris 3</Label>
+              <Input className="bg-[#1A1A1A] border-transparent text-white focus:border-white h-12 sm:h-14 text-base rounded-xl" placeholder="Kota" value={timestampData.loc3} onChange={e => setTimestampData(prev => ({ ...prev, loc3: e.target.value }))} />
             </div>
             <div>
-              <Label className="text-muted-foreground text-sm uppercase tracking-wider mb-3 block font-semibold">Baris 4</Label>
-              <Input className="bg-[#1A1A1A] border-transparent text-white focus:border-[#FF5656] h-14 text-base" placeholder="Provinsi" value={timestampData.loc4} onChange={e => setTimestampData(prev => ({ ...prev, loc4: e.target.value }))} />
+              <Label className="text-muted-foreground text-xs sm:text-sm uppercase tracking-wider mb-2 sm:mb-3 block font-semibold">Baris 4</Label>
+              <Input className="bg-[#1A1A1A] border-transparent text-white focus:border-white h-12 sm:h-14 text-base rounded-xl" placeholder="Provinsi" value={timestampData.loc4} onChange={e => setTimestampData(prev => ({ ...prev, loc4: e.target.value }))} />
             </div>
           </div>
         </div>
       </div>
 
       {/* SECTION 3: STYLE TEKS */}
-      <div className="bg-[#121212] border border-[#1E1E1E] rounded-2xl p-6 sm:p-8 space-y-8 shadow-lg">
+      <div className="bg-[#121212] border border-[#1E1E1E] rounded-2xl p-5 sm:p-8 space-y-8 shadow-lg">
         <h3 className="text-xl font-medium text-white">Gaya Teks & Latar</h3>
         
         <div className="space-y-4">
           <div className="flex justify-between items-center">
             <Label className="text-muted-foreground text-base">Ukuran Font</Label> 
-            <span className="text-[#FF5656] font-mono font-medium text-lg">{textStyle.size}px</span>
+            <span className="text-white font-mono font-bold text-lg">{textStyle.size}px</span>
           </div>
           <Slider 
             min={12} max={80} step={1} 
@@ -294,7 +310,8 @@ export function ControlPanel({
             {['#ffffff', '#facc15', '#f87171', '#60a5fa', '#000000'].map(c => (
               <button 
                 key={c}
-                className={`w-12 h-12 rounded-full border-[3px] transition-all ${textStyle.color === c ? 'border-[#FF5656] scale-110 shadow-[0_0_15px_rgba(255,86,86,0.5)]' : 'border-[#1E1E1E]'}`}
+                type="button"
+                className={`w-12 h-12 rounded-full border-[3px] transition-all ${textStyle.color === c ? 'border-white scale-110 ring-2 ring-white/30' : 'border-[#1E1E1E]'}`}
                 style={{ backgroundColor: c }}
                 onClick={() => setTextStyle(prev => ({ ...prev, color: c }))}
               />
@@ -310,7 +327,7 @@ export function ControlPanel({
 
         <div className="space-y-4">
           <Label className="text-muted-foreground text-base block mb-4">Bentuk Latar Belakang</Label>
-          <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
             {[
               { id: 'plain', label: 'Polos' },
               { id: 'shadow', label: 'Bayangan' },
@@ -320,8 +337,9 @@ export function ControlPanel({
             ].map(variant => (
               <button 
                 key={variant.id} 
+                type="button"
                 onClick={() => setTextStyle(prev => ({ ...prev, variant: variant.id as TextStyle['variant'] }))}
-                className={`py-4 px-5 rounded-xl text-base font-medium transition-all border-2 ${textStyle.variant === variant.id ? 'border-[#FF5656] bg-[#FF5656]/10 text-white shadow-[0_0_15px_rgba(255,86,86,0.15)]' : 'border-[#1E1E1E] bg-[#1A1A1A] text-muted-foreground hover:border-white/20 hover:bg-[#222]'}`}
+                className={`py-3.5 sm:py-4 px-4 sm:px-5 rounded-xl text-sm sm:text-base font-medium transition-all border-2 ${textStyle.variant === variant.id ? 'border-white bg-white/10 text-white shadow-md font-semibold' : 'border-[#1E1E1E] bg-[#1A1A1A] text-muted-foreground hover:border-white/20 hover:bg-[#222]'}`}
               >
                 {variant.label}
               </button>
@@ -332,7 +350,7 @@ export function ControlPanel({
         <div className="space-y-4">
           <div className="flex justify-between items-center">
             <Label className="text-muted-foreground text-base">Opacity Latar</Label> 
-            <span className="text-[#FF5656] font-mono font-medium text-lg">{textStyle.opacity}%</span>
+            <span className="text-white font-mono font-bold text-lg">{textStyle.opacity}%</span>
           </div>
           <Slider 
             min={10} max={100} step={1} 
@@ -343,14 +361,14 @@ export function ControlPanel({
       </div>
 
       {/* SECTION 4: MAP & FILTER */}
-      <div className="bg-[#121212] border border-[#1E1E1E] rounded-2xl p-6 sm:p-8 space-y-8 shadow-lg">
+      <div className="bg-[#121212] border border-[#1E1E1E] rounded-2xl p-5 sm:p-8 space-y-8 shadow-lg">
         <h3 className="text-xl font-medium text-white flex items-center justify-between">
           <span>Mini Map</span>
           <div className="flex items-center gap-3">
             <span className="text-base text-muted-foreground">Tampilkan</span>
             <input 
               type="checkbox" 
-              className="w-6 h-6 accent-[#FF5656] rounded border-[#1E1E1E] cursor-pointer"
+              className="w-6 h-6 accent-white rounded border-[#1E1E1E] cursor-pointer"
               checked={mapData.visible}
               onChange={e => setMapData(prev => ({ ...prev, visible: e.target.checked }))}
             />
@@ -362,7 +380,7 @@ export function ControlPanel({
             <div className="space-y-4">
               <div className="flex justify-between items-center">
                 <Label className="text-muted-foreground text-base">Zoom Level</Label> 
-                <span className="text-[#FF5656] font-mono font-medium text-lg">{mapData.zoom}x</span>
+                <span className="text-white font-mono font-bold text-lg">{mapData.zoom}x</span>
               </div>
               <Slider 
                 min={12} max={18} step={1} 
@@ -374,7 +392,7 @@ export function ControlPanel({
             <div className="space-y-4">
               <div className="flex justify-between items-center">
                 <Label className="text-muted-foreground text-base">Opacity Map</Label> 
-                <span className="text-[#FF5656] font-mono font-medium text-lg">{mapData.opacity}%</span>
+                <span className="text-white font-mono font-bold text-lg">{mapData.opacity}%</span>
               </div>
               <Slider 
                 min={10} max={100} step={1} 
@@ -391,7 +409,7 @@ export function ControlPanel({
             <div className="space-y-4">
               <div className="flex justify-between items-center">
                 <Label className="text-muted-foreground text-base">Brightness</Label> 
-                <span className="text-[#FF5656] font-mono font-medium text-lg">{filterData.brightness}%</span>
+                <span className="text-white font-mono font-bold text-lg">{filterData.brightness}%</span>
               </div>
               <Slider 
                 min={50} max={150} step={1} 
@@ -403,7 +421,7 @@ export function ControlPanel({
             <div className="space-y-4">
               <div className="flex justify-between items-center">
                 <Label className="text-muted-foreground text-base">Contrast</Label> 
-                <span className="text-[#FF5656] font-mono font-medium text-lg">{filterData.contrast}%</span>
+                <span className="text-white font-mono font-bold text-lg">{filterData.contrast}%</span>
               </div>
               <Slider 
                 min={50} max={150} step={1} 
